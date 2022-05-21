@@ -15,6 +15,7 @@ import com.example.corutinesretrofitroom.databinding.FragmentListFromRetrofitBin
 import com.example.corutinesretrofitroom.extentions.addSpaceDecoration
 import com.example.corutinesretrofitroom.personDatabase
 import com.example.corutinesretrofitroom.retrofit.ProvideRetrofit
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class ListFromRetrofitFragment : Fragment() {

@@ -17,6 +17,8 @@ import com.example.corutinesretrofitroom.databinding.FragmentListFromDatabaseBin
 import com.example.corutinesretrofitroom.extentions.SwipeToDeleteCallback
 import com.example.corutinesretrofitroom.extentions.addSpaceDecoration
 import com.example.corutinesretrofitroom.personDatabase
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ListFromDatabaseFragment : Fragment() {
@@ -53,26 +55,22 @@ class ListFromDatabaseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val personsList = getListFromDatabase()
-                adapter.submitList(personsList)
-            } catch (e: Throwable) {
-
-            }
-        }
+        subscribeChanges()
 
         with(binding) {
             val swipeToDeleteCallback = object : SwipeToDeleteCallback() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val personToDel = adapter.currentList[viewHolder.adapterPosition]
                     viewLifecycleOwner.lifecycleScope.launch {
-                        personDao.delete(personToDel)
-                        adapter.submitList(getListFromDatabase())
+                        try {
+                            personDao.delete(personToDel)
+                        } catch (e: Throwable) {
+
+                        }
                     }
+                    subscribeChanges()
                 }
             }
-
             recyclerView2.adapter = adapter
             recyclerView2.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -83,6 +81,20 @@ class ListFromDatabaseFragment : Fragment() {
 
     private suspend fun getListFromDatabase(): List<Person> { // Пока ещё не сделал репозиторий, но добавлю
         return personDao.getAll()
+    }
+
+    private fun subscribeChanges() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                personDao.subscribeChanges()
+                    .onEach {
+                        adapter.submitList(it)
+                    }
+                    .launchIn(viewLifecycleOwner.lifecycleScope)
+            } catch (e: Throwable) {
+
+            }
+        }
     }
 
     override fun onDestroy() {
