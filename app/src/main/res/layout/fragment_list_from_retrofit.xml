@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -7,16 +8,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
-<!--        <Toolbar-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="35sp"-->
-<!--            android:background="@color/black"-->
-<!--            android:title="breaking_bad_api"-->
-<!--            android:titleTextColor="@color/white">-->
-
-<!--        </Toolbar>-->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            app:title="Breaking bad API"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/search_menu" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

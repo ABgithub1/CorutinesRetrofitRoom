@@ -5,17 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.corutinesretrofitroom.R
 import com.example.corutinesretrofitroom.adapter.PersonListAdapter
 import com.example.corutinesretrofitroom.data.Person
 import com.example.corutinesretrofitroom.databinding.FragmentListFromRetrofitBinding
 import com.example.corutinesretrofitroom.extentions.addSpaceDecoration
 import com.example.corutinesretrofitroom.personDatabase
 import com.example.corutinesretrofitroom.retrofit.ProvideRetrofit
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ListFromRetrofitFragment : Fragment() {
@@ -26,6 +29,9 @@ class ListFromRetrofitFragment : Fragment() {
     private val personDao by lazy {
         requireContext().personDatabase.personDao()
     }
+
+    private val _queryFlow = MutableStateFlow("")
+    private val queryFlow = _queryFlow.asStateFlow()
 
     private val adapter by lazy {
         PersonListAdapter(itemClick = {
@@ -67,10 +73,43 @@ class ListFromRetrofitFragment : Fragment() {
         }
 
         with(binding) {
+
+            toolbar
+                .menu
+                .findItem(R.id.action_search)
+                .let { it.actionView as SearchView }
+                .setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String): Boolean {
+                        return false
+                    }
+
+                    override fun onQueryTextChange(newText: String): Boolean {
+                        _queryFlow.tryEmit(newText)
+                        return true
+                    }
+                })
+
+            queryFlow
+                .debounce(100)
+                .mapLatest {
+                    filterPersonList(it)
+                }
+                .onEach {
+                    adapter.submitList(it)
+                }
+                .launchIn(viewLifecycleOwner.lifecycleScope)
+
             recyclerView.adapter = adapter
             recyclerView.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             recyclerView.addSpaceDecoration(8)
+        }
+    }
+
+    private suspend fun filterPersonList(query: String = ""): List<Person> {
+        delay(100)
+        return ProvideRetrofit.brBadApi.getPersons().filter {
+            it.name.contains(query, ignoreCase = true)
         }
     }
 
