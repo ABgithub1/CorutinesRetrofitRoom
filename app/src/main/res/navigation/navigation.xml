@@ -1,6 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/navigation">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/listFromRetrofitFragment">
 
+    <fragment
+        android:id="@+id/listFromRetrofitFragment"
+        android:name="com.example.corutinesretrofitroom.fragments.ListFromRetrofitFragment"
+        tools:layout="@layout/fragment_list_from_retrofit"
+        android:label="ListFromRetrofitFragment" >
+        <action
+            android:id="@+id/action_listFromRetrofitFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/listFromDatabaseFragment"
+        android:name="com.example.corutinesretrofitroom.fragments.ListFromDatabaseFragment"
+        android:label="fragment_list_from_database"
+        tools:layout="@layout/fragment_list_from_database" >
+        <action
+            android:id="@+id/action_listFromDatabaseFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.corutinesretrofitroom.fragments.DetailsFragment"
+        android:label="fragment_details"
+        tools:layout="@layout/fragment_details" >
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <argument
+            android:name="nickname"
+            app:argType="string" />
+        <argument
+            android:name="birthday"
+            app:argType="string" />
+        <argument
+            android:name="status"
+            app:argType="string" />
+        <argument
+            android:name="img"
+            app:argType="string" />
+    </fragment>
 </navigation>
